@@ -1325,9 +1325,9 @@ function saveParticipation() {
    LEADERBOARD MODAL
    ════════════════════════════════ */
 function openLeaderboard() {
-    renderLeaderboard();
     document.getElementById('lbModal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    renderLeaderboard();
 }
 
 function closeLeaderboard() {
@@ -1341,36 +1341,52 @@ function clearLeaderboard() {
     renderLeaderboard();
 }
 
-function renderLeaderboard() {
-    const board      = getBoard();
-    const contentEl  = document.getElementById('lbContent');
-    const bannerEl   = document.getElementById('winnerBanner');
+async function renderLeaderboard() {
+    const contentEl = document.getElementById('lbContent');
+    const bannerEl  = document.getElementById('winnerBanner');
+
+    // loading
+    bannerEl.classList.remove('show');
+    contentEl.innerHTML = `<div class="lb-empty">
+        <div style="font-size:32px;margin-bottom:12px">⏳</div>
+        <div>Carregando classificação...</div>
+    </div>`;
+
+    let board = [];
+
+    // busca do Google Sheets
+    if (SHEET_URL && SHEET_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+        try {
+            const res = await fetch(SHEET_URL, { redirect: 'follow' });
+            board = await res.json();
+        } catch(e) {
+            board = getBoard(); // fallback localStorage
+        }
+    } else {
+        board = getBoard();
+    }
 
     if (board.length === 0) {
         bannerEl.classList.remove('show');
         contentEl.innerHTML = `<div class="lb-empty">
             <div style="font-size:40px;margin-bottom:12px">🏁</div>
-            <div>Nenhuma partida registrada ainda.</div>
-            <div style="font-size:13px;margin-top:6px;color:var(--text-3)">Complete o quiz para aparecer aqui.</div>
+            <div>Nenhuma participação registrada ainda.</div>
+            <div style="font-size:13px;margin-top:6px;color:var(--text-3)">Salve uma participação para aparecer aqui.</div>
         </div>`;
         return;
     }
 
-    // winner
+    // vencedor
     const w = board[0];
     bannerEl.classList.add('show');
     document.getElementById('winnerName').textContent  = w.name;
     document.getElementById('winnerStats').textContent =
-        `${w.correct}/10 acertos · ${w.score} pts · ${fmtTime(w.ms)}`;
+        `${w.correct}/10 acertos · ${w.score} pts · ${w.timeLabel || fmtTime(w.ms)}`;
 
-    // table
+    // tabela
     let html = `<table class="lb-table">
         <thead><tr>
-            <th>#</th>
-            <th>Nome</th>
-            <th>Acertos</th>
-            <th>Pontuação</th>
-            <th>Tempo</th>
+            <th>#</th><th>Nome</th><th>Acertos</th><th>Pontuação</th><th>Tempo</th>
         </tr></thead><tbody>`;
 
     board.forEach((entry, i) => {
@@ -1381,7 +1397,7 @@ function renderLeaderboard() {
             <td class="name-cell">${escHtml(entry.name)}</td>
             <td><span class="correct-chip">${entry.correct}/10</span></td>
             <td style="font-weight:700;color:var(--navy)">${entry.score}</td>
-            <td class="time-cell">${fmtTime(entry.ms)}</td>
+            <td class="time-cell">${entry.timeLabel || fmtTime(entry.ms)}</td>
         </tr>`;
     });
 
