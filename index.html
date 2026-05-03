@@ -1335,9 +1335,28 @@ function closeLeaderboard() {
     document.body.style.overflow = '';
 }
 
-function clearLeaderboard() {
-    if (!confirm('Deseja realmente limpar todo o placar?')) return;
+async function clearLeaderboard() {
+    if (!confirm('Deseja realmente apagar todo o placar? Esta ação não pode ser desfeita.')) return;
+
+    // limpa localStorage
     localStorage.removeItem(LB_KEY);
+
+    // limpa Google Sheets
+    if (SHEET_URL && SHEET_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+        const contentEl = document.getElementById('lbContent');
+        contentEl.innerHTML = `<div class="lb-empty"><div style="font-size:32px;margin-bottom:12px">⏳</div><div>Limpando placar...</div></div>`;
+        try {
+            await fetch(SHEET_URL, {
+                method:  'POST',
+                mode:    'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ action: 'clear' })
+            });
+        } catch(e) {}
+        // aguarda 1s para o Sheets processar antes de recarregar
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
     renderLeaderboard();
 }
 
