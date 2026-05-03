@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Itaú — Diversidade & Desenvolvimento</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy:        #0D2461;
+            --navy-2:      #1A3A8F;
+            --navy-3:      #2E5AAC;
+            --navy-light:  #EEF2FF;
+            --navy-border: #C5D0EC;
+            --white:       #FFFFFF;
+            --off-white:   #F5F8FF;
+            --text:        #0D2461;
+            --text-2:      #4A5C8A;
+            --text-3:      #8A9CC8;
+            --correct:     #1B7B3A;
+            --correct-bg:  #E6F4ED;
+            --wrong:       #C62828;
+            --wrong-bg:    #FDECEC;
+            --easy-c:      #0A6B3A;
+            --easy-bg:     #E6F4ED;
+            --med-c:       #92400E;
+            --med-bg:      #FEF3E2;
+            --hard-c:      #991B1B;
+            --hard-bg:     #FEE2E2;
+        }
+
+        body {
+            background: var(--white);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* ══ HEADER ══ */
+        .top-bar {
+            background: var(--navy);
+            color: var(--white);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(13,36,97,0.18);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .itau-logo {
+            width: 36px; height: 36px;
+            background: #EC7000;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900; color: white;
+            letter-spacing: -1px;
+            flex-shrink: 0;
+        }
+
+        .top-bar-title {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .top-bar-sub {
+            font-size: 11px;
+            opacity: 0.65;
+            margin-top: 1px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-rank-top {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-rank-top:hover { background: rgba(255,255,255,0.2); }
+
+        /* ══ MAIN CONTENT ══ */
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px 60px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--navy-border);
+            border-radius: 12px;
+            padding: 48px 44px;
+            width: 100%;
+            max-width: 660px;
+            box-shadow: 0 4px 24px rgba(13,36,97,0.07);
+        }
+
+        /* ══ SCREENS ══ */
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══ START SCREEN ══ */
+        .start-hero { text-align: center; margin-bottom: 40px; }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--navy-light);
+            color: var(--navy-3);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--navy-border);
+        }
+
+        .hero-title {
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--text-2);
+            line-height: 1.65;
+        }
+
+        /* divider */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--navy-border);
+            margin: 32px 0;
+        }
+
+        /* info strip */
+        .info-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-tile {
+            background: var(--off-white);
+            border: 1px solid var(--navy-border);
+            border-radius: 8px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .info-tile-val {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1;
+        }
+
+        .info-tile-lbl {
+            font-size: 11px;
+            color: var(--text-2);
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        /* diff pills info */
+        .diff-legend {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .diff-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .diff-pill.easy { background: var(--easy-bg); color: var(--easy-c); }
+        .diff-pill.med  { background: var(--med-bg);  color: var(--med-c);  }
+        .diff-pill.hard { background: var(--hard-bg); color: var(--hard-c); }
+
+        /* name input */
+        .field-group {
+            margin-bottom: 24px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 7px;
+            letter-spacing: 0.3px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--navy-border);
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text);
+            font-family: inherit;
+            background: var(--white);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .field-input:focus {
+            border-color: var(--navy-2);
+            box-shadow: 0 0 0 3px rgba(26,58,143,0.1);
+        }
+
+        .field-input::placeholder { color: var(--text-3); }
+
+        .field-error {
+            font-size: 12px;
+            color: var(--wrong);
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* buttons */
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 15px 24px;
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--navy-2);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(13,36,97,0.22);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-exit {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background: white;
+            border: 1.5px solid var(--navy-border);
+            border-radius: 6px;
+            color: var(--text-2);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-exit:hover {
+            border-color: var(--wrong);
+            color: var(--wrong);
+            background: var(--wrong-bg);
+        }
+
+        .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 13px 24px;
+            background: var(--white);
+            color: var(--navy);
+            border: 2px solid var(--navy);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--navy-light);
+            transform: translateY(-1px);
+        }
+
+        /* ══ QUIZ SCREEN ══ */
+        .quiz-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qnum {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy-3);
+            letter-spacing: 0.3px;
+        }
+
+        .player-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-2);
+        }
+
+        .player-avatar {
+            width: 26px; height: 26px;
+            background: var(--navy-light);
+            border: 1.5px solid var(--navy-border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--navy-2);
+        }
+
+        /* progress bar */
+        .prog-track {
+            height: 5px;
+            background: var(--navy-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--navy-2), var(--navy-3));
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        /* difficulty badge */
+        .diff-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+        }
+
+        .diff-badge.easy { background: var(--easy-bg); color: var(--easy-c); }
+        .diff-badge.med  { background: var(--med-bg);  color: var(--med-c);  }
+        .diff-badge.hard { background: var(--hard-bg); color: var(--hard-c); }
+
+        .diff-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* question */
+        .question-txt {
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--navy);
+            line-height: 1.55;
+            margin-bottom: 28px;
+        }
+
+        /* options */
+        .options { display: grid; gap: 10px; }
+
+        .opt-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--white);
+            border: 2px solid var(--navy-border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14.5px;
+            line-height: 1.45;
+            text-align: left;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .opt-btn:hover:not(:disabled) {
+            background: var(--navy-light);
+            border-color: var(--navy-3);
+            color: var(--navy);
+        }
+
+        .opt-key {
+            min-width: 32px; width: 32px; height: 32px;
+            background: var(--off-white);
+            border: 1.5px solid var(--navy-border);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            color: var(--navy-2);
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .opt-btn:hover:not(:disabled) .opt-key {
+            background: var(--navy-2);
+            border-color: var(--navy-2);
+            color: white;
+        }
+
+        .opt-btn.correct {
+            background: var(--correct-bg);
+            border-color: var(--correct);
+            color: var(--correct);
+        }
+
+        .opt-btn.correct .opt-key {
+            background: var(--correct);
+            border-color: var(--correct);
+            color: white;
+        }
+
+        .opt-btn.wrong {
+            background: var(--wrong-bg);
+            border-color: var(--wrong);
+            color: var(--wrong);
+        }
+
+        .opt-btn.wrong .opt-key {
+            background: var(--wrong);
+            border-color: var(--wrong);
+            color: white;
+        }
+
+        .opt-btn:disabled { cursor: default; }
+
+        /* feedback */
+        .feedback-box {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            line-height: 1.55;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .feedback-box.ok {
+            background: var(--correct-bg);
+            border: 1px solid #A7D7BC;
+            color: #145228;
+        }
+
+        .feedback-box.fail {
+            background: var(--wrong-bg);
+            border: 1px solid #F5AAAA;
+            color: #9B1B1B;
+        }
+
+        /* ══ RESULT SCREEN ══ */
+        .result-hero {
+            text-align: center;
+            padding: 8px 0 32px;
+        }
+
+        .result-score-wrap {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 148px; height: 148px;
+            border-radius: 50%;
+            border: 3px solid var(--navy);
+            margin: 24px auto;
+            position: relative;
+        }
+
+        .result-score-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            border: 1px solid var(--navy-border);
+        }
+
+        .result-score-num {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1;
+        }
+
+        .result-score-max {
+            font-size: 12px;
+            color: var(--text-2);
+            margin-top: 2px;
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: var(--text-2);
+            line-height: 1.7;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 28px 0;
+        }
+
+        .stat-tile {
+            background: var(--off-white);
+            border: 1px solid var(--navy-border);
+            border-radius: 8px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--navy);
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--text-2);
+            margin-top: 5px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ══ LEADERBOARD MODAL ══ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(13,36,97,0.45);
+            z-index: 200;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+
+        .modal {
+            background: var(--white);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 620px;
+            box-shadow: 0 20px 60px rgba(13,36,97,0.22);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--navy);
+            color: white;
+            padding: 24px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover { background: rgba(255,255,255,0.25); }
+
+        .modal-body { padding: 28px; }
+
+        /* winner banner */
+        .winner-banner {
+            display: none;
+            background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+            border: 2px solid #D4A017;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .winner-banner.show { display: flex; }
+
+        .winner-trophy { font-size: 32px; }
+
+        .winner-info { flex: 1; }
+
+        .winner-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #92400E;
+            margin-bottom: 2px;
+        }
+
+        .winner-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #7C2D12;
+        }
+
+        .winner-stats {
+            font-size: 13px;
+            color: #92400E;
+            margin-top: 2px;
+        }
+
+        /* leaderboard table */
+        .lb-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-2);
+            font-size: 15px;
+        }
+
+        .lb-table { width: 100%; border-collapse: collapse; }
+
+        .lb-table th {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-2);
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid var(--navy-border);
+        }
+
+        .lb-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--navy-border);
+            font-size: 14px;
+        }
+
+        .lb-table tr:last-child td { border-bottom: none; }
+
+        .lb-table tr:hover td { background: var(--off-white); }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .rank-1 { background: #FDE68A; color: #92400E; }
+        .rank-2 { background: #E5E7EB; color: #374151; }
+        .rank-3 { background: #FCDDB7; color: #7C2D12; }
+        .rank-n { background: var(--navy-light); color: var(--navy-2); font-size: 12px; }
+
+        .name-cell { font-weight: 600; color: var(--navy); }
+
+        .correct-chip {
+            display: inline-block;
+            background: var(--correct-bg);
+            color: var(--correct);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+
+        .time-cell { color: var(--text-2); font-size: 13px; }
+
+        .modal-footer {
+            padding: 0 28px 24px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-clear-lb {
+            flex: 1;
+            padding: 11px;
+            background: white;
+            border: 1.5px solid var(--wrong);
+            border-radius: 7px;
+            color: var(--wrong);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-clear-lb:hover { background: var(--wrong-bg); }
+
+        .btn-close-modal {
+            flex: 2;
+            padding: 11px;
+            background: var(--navy);
+            border: none;
+            border-radius: 7px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-close-modal:hover { background: var(--navy-2); }
+
+        /* ══ RESPONSIVE ══ */
+        @media (max-width: 580px) {
+            .card { padding: 32px 22px; }
+            .hero-title { font-size: 26px; }
+            .info-strip { grid-template-columns: 1fr; gap: 10px; }
+            .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+            .question-txt { font-size: 17px; }
+            .top-bar { padding: 12px 18px; }
+            .modal-body, .modal-footer { padding-left: 18px; padding-right: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<header class="top-bar">
+    <div class="top-bar-brand">
+        <div class="itau-logo">itaú</div>
+        <div>
+            <div class="top-bar-title">Quiz Diversidade &amp; Desenvolvimento</div>
+            <div class="top-bar-sub">Itaú Unibanco · Sustentabilidade</div>
+        </div>
+    </div>
+    <button class="btn-rank-top" onclick="openLeaderboard()">
+        🏆 Classificação
+    </button>
+</header>
+
+<!-- ════ MAIN ════ -->
+<div class="main">
+<div style="width:100%;max-width:660px">
+
+    <!-- ── START ── -->
+    <div id="screenStart" class="screen active">
+        <div class="card">
+            <div class="start-hero">
+                <div class="hero-badge">Sustentabilidade · ESG</div>
+                <h1 class="hero-title">Diversidade &amp;<br>Desenvolvimento</h1>
+                <p class="hero-sub">
+                    Teste seu conhecimento sobre as políticas, metas e programas de diversidade e inclusão do Itaú Unibanco.
+                </p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="info-strip">
+                <div class="info-tile">
+                    <div class="info-tile-val">10</div>
+                    <div class="info-tile-lbl">Perguntas</div>
+                </div>
+                <div class="info-tile">
+                    <div class="info-tile-val">100pts</div>
+                    <div class="info-tile-lbl">Por acerto</div>
+                </div>
+                <div class="info-tile">
+                    <div class="info-tile-val">1.000</div>
+                    <div class="info-tile-lbl">Pts máximo</div>
+                </div>
+            </div>
+
+            <div class="diff-legend">
+                <span class="diff-pill easy"><span class="diff-dot"></span>Fácil (3 questões)</span>
+                <span class="diff-pill med"><span class="diff-dot"></span>Médio (4 questões)</span>
+                <span class="diff-pill hard"><span class="diff-dot"></span>Difícil (3 questões)</span>
+            </div>
+
+            <hr class="divider">
+
+            <div class="field-group">
+                <label class="field-label" for="playerName">Seu nome</label>
+                <input class="field-input" type="text" id="playerName"
+                    placeholder="Digite seu nome completo" maxlength="50"
+                    onkeydown="if(event.key==='Enter') startQuiz()">
+                <div class="field-error" id="nameError">Por favor, informe seu nome antes de começar.</div>
+            </div>
+
+            <button class="btn-primary" onclick="startQuiz()">Iniciar o Quiz</button>
+            <button class="btn-secondary" onclick="openLeaderboard()">🏆 Ver Classificação</button>
+        </div>
+    </div>
+
+    <!-- ── QUIZ ── -->
+    <div id="screenQuiz" class="screen">
+        <div class="card">
+            <div class="quiz-meta">
+                <span class="qnum" id="qNum">Questão 1 de 10</span>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span class="player-tag">
+                        <span class="player-avatar" id="playerAvatar">?</span>
+                        <span id="playerTagName"></span>
+                    </span>
+                    <button class="btn-exit" onclick="confirmExit()" title="Finalizar participação">
+                        ✕ Sair
+                    </button>
+                </div>
+            </div>
+
+            <div class="prog-track">
+                <div class="prog-fill" id="progFill" style="width:10%"></div>
+            </div>
+
+            <div class="diff-badge easy" id="diffBadge">
+                <span class="diff-dot"></span> Fácil
+            </div>
+
+            <p class="question-txt" id="questionTxt"></p>
+
+            <div class="options" id="optionsGrid"></div>
+
+            <div class="feedback-box" id="feedbackBox"></div>
+        </div>
+    </div>
+
+    <!-- ── SAVED ── -->
+    <div id="screenSaved" class="screen">
+        <div class="card" style="text-align:center;padding:56px 44px">
+            <div style="font-size:64px;margin-bottom:20px">✅</div>
+            <div class="hero-badge">Participação Registrada</div>
+            <h2 style="font-size:26px;font-weight:700;color:var(--navy);margin:16px 0 10px" id="savedName"></h2>
+            <p style="font-size:15px;color:var(--text-2);line-height:1.7;margin-bottom:36px">
+                Sua participação foi salva com sucesso.<br>
+                Passe para o próximo participante.
+            </p>
+            <hr class="divider">
+            <button class="btn-primary" onclick="goStart()">Próximo Participante</button>
+        </div>
+    </div>
+
+    <!-- ── RESULT ── -->
+    <div id="screenResult" class="screen">
+        <div class="card">
+            <div class="result-hero">
+                <div class="hero-badge">Participação Concluída</div>
+                <h2 style="font-size:18px;font-weight:700;color:var(--navy);margin-top:12px" id="resultPlayer"></h2>
+                <div class="result-title" id="rTitle"></div>
+                <div class="result-desc" id="rDesc"></div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="btn-row">
+                <button class="btn-primary" id="btnSave" onclick="saveParticipation()">💾 Salvar Participação</button>
+                <button class="btn-secondary" onclick="openLeaderboard()">🏆 Ver Classificação</button>
+                <button class="btn-secondary" onclick="goStart()">Jogar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<!-- ════ LEADERBOARD MODAL ════ -->
+<div class="modal-overlay" id="lbModal" onclick="if(event.target===this) closeLeaderboard()">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">🏆 Classificação Geral</span>
+            <button class="modal-close" onclick="closeLeaderboard()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="winner-banner" id="winnerBanner">
+                <span class="winner-trophy">🥇</span>
+                <div class="winner-info">
+                    <div class="winner-label">Líder atual</div>
+                    <div class="winner-name" id="winnerName"></div>
+                    <div class="winner-stats" id="winnerStats"></div>
+                </div>
+            </div>
+            <div id="lbContent"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-clear-lb" onclick="clearLeaderboard()">Limpar placar</button>
+            <button class="btn-close-modal" onclick="closeLeaderboard()">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ════════════════════════════════
+   QUESTIONS
+   ════════════════════════════════ */
+const QUESTIONS = [
+    /* ── FÁCIL ── */
+    {
+        diff: 'easy', diffLabel: 'Fácil',
+        q: 'Qual é o objetivo principal do programa "+Mulheres +Liderança" do Itaú Unibanco?',
+        opts: [
+            'Oferecer microcrédito exclusivo para mulheres empreendedoras',
+            'Alavancar a contratação de mulheres para posições de liderança',
+            'Criar uma conta bancária com benefícios exclusivos para mulheres',
+            'Conceder bolsas de pós-graduação em universidades estrangeiras'
+        ],
+        correct: 1,
+        tip: 'O "+Mulheres +Liderança" foi criado especificamente para acelerar a presença feminina nos cargos de liderança do banco por meio de processos seletivos direcionados.'
+    },
+    {
+        diff: 'easy', diffLabel: 'Fácil',
+        q: 'Em que ano o Itaú Unibanco assinou a Carta de Compromisso com a Diversidade?',
+        opts: ['2010', '2014', '2017', '2021'],
+        correct: 2,
+        tip: 'Desde 2017, o Itaú segue as diretrizes da Carta de Compromisso com a Diversidade, assumindo um compromisso público que vai além das exigências legais.'
+    },
+    {
+        diff: 'easy', diffLabel: 'Fácil',
+        q: 'Como se chama o programa do Itaú voltado para formação e contratação de Pessoas com Deficiência (PCD)?',
+        opts: ['Incluir Itaú', 'Capacita Itaú', 'Transforma Itaú', 'Emprega Itaú'],
+        correct: 2,
+        tip: 'O "Transforma Itaú" é o programa oficial de formação e inclusão de Pessoas com Deficiência nas diversas áreas do banco.'
+    },
+    /* ── MÉDIO ── */
+    {
+        diff: 'med', diffLabel: 'Médio',
+        q: 'Qual é a meta do Itaú para representatividade de mulheres em cargos de liderança até 2025?',
+        opts: ['20% a 25%', '25% a 30%', '35% a 40%', '45% a 50%'],
+        correct: 2,
+        tip: 'A meta é atingir entre 35% e 40% de mulheres nos cargos de liderança até 2025, além de 50% de representatividade no fluxo de novas contratações.'
+    },
+    {
+        diff: 'med', diffLabel: 'Médio',
+        q: 'Quantas empreendedoras já participaram da plataforma Itaú Mulher Empreendedora desde o seu lançamento?',
+        opts: ['Mais de 5 mil', 'Mais de 15 mil', 'Mais de 27 mil', 'Mais de 50 mil'],
+        correct: 2,
+        tip: 'Mais de 27 mil empreendedoras já participaram da plataforma, tendo acesso a mais de 700 conteúdos gratuitos para o desenvolvimento de seus negócios.'
+    },
+    {
+        diff: 'med', diffLabel: 'Médio',
+        q: 'Quanto o Itaú investiu no programa "Potências", destinado a estudantes de universidades públicas cotistas?',
+        opts: ['R$ 5 milhões', 'R$ 10 milhões', 'R$ 25 milhões', 'R$ 50 milhões'],
+        correct: 2,
+        tip: 'O Itaú investiu R$ 25 milhões no programa "Potências", viabilizando bolsas para estudantes autodeclarados pretos, pardos, indígenas ou quilombolas em universidades públicas.'
+    },
+    {
+        diff: 'med', diffLabel: 'Médio',
+        q: 'Qual é o nome do programa do Itaú que acelera a contratação de pessoas pretas e pardas por meio de oportunidades direcionadas?',
+        opts: ['+Negritude +Futuro', '+Black +Oportunidades', '+Raça +Carreira', '+Inclui +Diversidade'],
+        correct: 1,
+        tip: 'O "+Black +Oportunidades" tem como objetivo acelerar a contratação de pessoas pretas e pardas, integrando o grupo de iniciativas de diversidade junto ao "+Mulheres +Liderança" e ao "+Inclui +Oportunidades".'
+    },
+    /* ── DIFÍCIL ── */
+    {
+        diff: 'hard', diffLabel: 'Difícil',
+        q: 'Qual é a meta do Itaú para representatividade de pessoas negras em toda a organização até 2025?',
+        opts: ['15% a 20%', '20% a 25%', '27% a 30%', '35% a 40%'],
+        correct: 2,
+        tip: 'A meta é alcançar de 27% a 30% de pessoas negras em todos os níveis hierárquicos da organização até 2025, com 40% de representatividade nas novas contratações.'
+    },
+    {
+        diff: 'hard', diffLabel: 'Difícil',
+        q: 'Em 2024, qual percentual dos colaboradores do Itaú que responderam à pesquisa anual se autodeclararam pertencentes à comunidade LGBTI+?',
+        opts: ['5%', '8%', '13%', '19%'],
+        correct: 2,
+        tip: 'Na pesquisa anual sobre segurança e respeito no trabalho, com cerca de 30 mil respondentes, 13% se autodeclararam pertencentes à comunidade LGBTI+.'
+    },
+    {
+        diff: 'hard', diffLabel: 'Difícil',
+        q: 'Qual é o valor total destinado pelo Itaú Unibanco ao Edital LGBTQIA+ Orgulho em sua 6ª edição para projetos selecionados?',
+        opts: ['R$ 100 mil', 'R$ 250 mil', 'R$ 500 mil', 'R$ 1 milhão'],
+        correct: 2,
+        tip: 'Na 6ª edição do Edital LGBTQIA+ Orgulho, realizado em parceria com o Instituto +Diversidade, foram destinados R$ 500 mil para projetos de empreendedorismo, geração de renda e empregabilidade de pessoas LGBTQIA+.'
+    }
+];
+
+const LETTERS = ['A','B','C','D'];
+
+/* ════════════════════════════════
+   STATE
+   ════════════════════════════════ */
+let playerName        = '';
+let idx               = 0;
+let score             = 0;
+let correctCount      = 0;
+let answered          = false;
+let timerStart        = null;
+let totalMs           = 0;
+let shuffledCorrectIdx = 0;
+let shuffledOpts       = [];
+let alreadySaved       = false;
+let answers            = [];
+
+/* ════════════════════════════════
+   UTILS
+   ════════════════════════════════ */
+function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function fmtTime(ms) {
+    const s = Math.round(ms / 1000);
+    if (s < 60) return s + 's';
+    const m = Math.floor(s / 60), rem = s % 60;
+    return `${m}m ${rem.toString().padStart(2,'0')}s`;
+}
+
+function initials(name) {
+    return name.trim().split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+}
+
+/* ════════════════════════════════
+   LEADERBOARD (localStorage)
+   ════════════════════════════════ */
+const LB_KEY   = 'itau_diversity_quiz_v2';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwiilU0kxpRCSQiqTFOE9YDUHPKgmy0zuuYOzkE5I2ZGBmslWUJKuBbnnzoi_XRlIgJNg/exec
+';
+
+function getBoard() {
+    try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveResult(entry) {
+    const board = getBoard();
+    board.push(entry);
+    board.sort((a, b) => {
+        if (b.correct !== a.correct) return b.correct - a.correct;
+        return a.ms - b.ms;
+    });
+    localStorage.setItem(LB_KEY, JSON.stringify(board));
+}
+
+/* ════════════════════════════════
+   START
+   ════════════════════════════════ */
+function startQuiz() {
+    const input = document.getElementById('playerName');
+    const errEl = document.getElementById('nameError');
+    const name  = input.value.trim();
+
+    if (!name) {
+        errEl.style.display = 'block';
+        input.focus();
+        return;
+    }
+
+    errEl.style.display = 'none';
+    playerName   = name;
+    idx          = 0;
+    score        = 0;
+    correctCount = 0;
+    answered     = false;
+    alreadySaved = false;
+    answers      = [];
+    timerStart   = Date.now();
+
+    // reset save button appearance
+    const btnSave = document.getElementById('btnSave');
+    if (btnSave) {
+        btnSave.textContent = '💾 Salvar Participação';
+        btnSave.disabled = false;
+        btnSave.style.cssText = '';
+    }
+
+    document.getElementById('playerTagName').textContent = playerName;
+    document.getElementById('playerAvatar').textContent  = initials(playerName);
+
+    show('screenQuiz');
+    loadQuestion();
+}
+
+function goStart() {
+    show('screenStart');
+}
+
+function confirmExit() {
+    if (confirm(`Deseja encerrar a participação de "${playerName}"?\nSeu progresso atual não será salvo.`)) {
+        show('screenStart');
+    }
+}
+
+/* ════════════════════════════════
+   QUIZ
+   ════════════════════════════════ */
+function loadQuestion() {
+    answered = false;
+    const q  = QUESTIONS[idx];
+
+    // header
+    document.getElementById('qNum').textContent = `Questão ${idx + 1} de ${QUESTIONS.length}`;
+
+    // progress
+    document.getElementById('progFill').style.width = ((idx + 1) / QUESTIONS.length * 100) + '%';
+
+    // difficulty badge
+    const badge = document.getElementById('diffBadge');
+    badge.className = `diff-badge ${q.diff}`;
+    badge.innerHTML = `<span class="diff-dot"></span> ${q.diffLabel}`;
+
+    // question
+    document.getElementById('questionTxt').textContent = q.q;
+
+    // shuffle options (Fisher-Yates on index array)
+    const order = [0, 1, 2, 3];
+    for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+    }
+    shuffledOpts = order.map(i => q.opts[i]);
+    shuffledCorrectIdx = order.indexOf(q.correct);
+
+    // options
+    const grid = document.getElementById('optionsGrid');
+    grid.innerHTML = '';
+    shuffledOpts.forEach((txt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `<span class="opt-key">${LETTERS[i]}</span><span>${txt}</span>`;
+        btn.onclick = () => pick(i);
+        grid.appendChild(btn);
+    });
+
+    // feedback
+    const fb = document.getElementById('feedbackBox');
+    fb.style.display = 'none';
+    fb.className = 'feedback-box';
+}
+
+function pick(i) {
+    if (answered) return;
+    answered = true;
+
+    const q    = QUESTIONS[idx];
+    const btns = document.querySelectorAll('.opt-btn');
+    btns.forEach(b => b.disabled = true);
+    btns[i].style.borderColor = 'var(--navy-2)';
+    btns[i].style.background  = 'var(--navy-light)';
+
+    const wasCorrect = (i === shuffledCorrectIdx);
+    if (wasCorrect) {
+        correctCount++;
+        score += 100;
+    }
+
+    answers.push({
+        question:    q.q,
+        chosenText:  shuffledOpts[i],
+        correctText: shuffledOpts[shuffledCorrectIdx],
+        wasCorrect
+    });
+
+    setTimeout(advance, 900);
+}
+
+function advance() {
+    idx++;
+    if (idx >= QUESTIONS.length) {
+        finishQuiz();
+    } else {
+        loadQuestion();
+    }
+}
+
+/* ════════════════════════════════
+   RESULT
+   ════════════════════════════════ */
+function finishQuiz() {
+    totalMs      = Date.now() - timerStart;
+    alreadySaved = false;
+
+    // populate result screen
+    document.getElementById('resultPlayer').textContent = playerName;
+
+    // message
+    let title, desc;
+    if (correctCount === 10)       { title = 'Perfeito!';              desc = 'Pontuação máxima! Você domina completamente os programas de diversidade e desenvolvimento do Itaú Unibanco.'; }
+    else if (correctCount >= 8)    { title = 'Excelente!';             desc = 'Resultado excepcional. Você tem um conhecimento profundo sobre as iniciativas ESG do Itaú.'; }
+    else if (correctCount >= 6)    { title = 'Muito Bom!';             desc = 'Bom conhecimento sobre a agenda de diversidade do Itaú. Ainda há espaço para aprender mais.'; }
+    else if (correctCount >= 4)    { title = 'Em Desenvolvimento';     desc = 'Você conhece o básico. Explore mais o portal de sustentabilidade do Itaú para aprofundar seu conhecimento.'; }
+    else                           { title = 'Continue Aprendendo';    desc = 'Muitas descobertas ainda te esperam. Explore o portal de sustentabilidade do Itaú e tente novamente!'; }
+
+    document.getElementById('rTitle').textContent = title;
+    document.getElementById('rDesc').textContent  = desc;
+
+    show('screenResult');
+}
+
+function saveParticipation() {
+    if (alreadySaved) return;
+    alreadySaved = true;
+
+    const entry = {
+        name:      playerName,
+        correct:   correctCount,
+        score:     score,
+        ms:        totalMs,
+        timeLabel: fmtTime(totalMs),
+        date:      new Date().toLocaleDateString('pt-BR'),
+        answers:   answers.map(a => ({
+            question:   a.question,
+            chosen:     a.chosenText,
+            correct:    a.correctText,
+            wasCorrect: a.wasCorrect
+        }))
+    };
+
+    // salva localmente (backup)
+    saveResult(entry);
+
+    // exibe tela de confirmação imediatamente
+    document.getElementById('savedName').textContent = playerName;
+    show('screenSaved');
+
+    // envia para o Google Sheets em segundo plano
+    if (SHEET_URL && SHEET_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+        fetch(SHEET_URL, {
+            method:  'POST',
+            mode:    'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(entry)
+        }).catch(() => {}); // falha silenciosa — dado já está no localStorage
+    }
+}
+
+
+/* ════════════════════════════════
+   LEADERBOARD MODAL
+   ════════════════════════════════ */
+function openLeaderboard() {
+    renderLeaderboard();
+    document.getElementById('lbModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLeaderboard() {
+    document.getElementById('lbModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function clearLeaderboard() {
+    if (!confirm('Deseja realmente limpar todo o placar?')) return;
+    localStorage.removeItem(LB_KEY);
+    renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    const board      = getBoard();
+    const contentEl  = document.getElementById('lbContent');
+    const bannerEl   = document.getElementById('winnerBanner');
+
+    if (board.length === 0) {
+        bannerEl.classList.remove('show');
+        contentEl.innerHTML = `<div class="lb-empty">
+            <div style="font-size:40px;margin-bottom:12px">🏁</div>
+            <div>Nenhuma partida registrada ainda.</div>
+            <div style="font-size:13px;margin-top:6px;color:var(--text-3)">Complete o quiz para aparecer aqui.</div>
+        </div>`;
+        return;
+    }
+
+    // winner
+    const w = board[0];
+    bannerEl.classList.add('show');
+    document.getElementById('winnerName').textContent  = w.name;
+    document.getElementById('winnerStats').textContent =
+        `${w.correct}/10 acertos · ${w.score} pts · ${fmtTime(w.ms)}`;
+
+    // table
+    let html = `<table class="lb-table">
+        <thead><tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Acertos</th>
+            <th>Pontuação</th>
+            <th>Tempo</th>
+        </tr></thead><tbody>`;
+
+    board.forEach((entry, i) => {
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+        const medal     = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+        html += `<tr>
+            <td><span class="rank-badge ${rankClass}">${medal}</span></td>
+            <td class="name-cell">${escHtml(entry.name)}</td>
+            <td><span class="correct-chip">${entry.correct}/10</span></td>
+            <td style="font-weight:700;color:var(--navy)">${entry.score}</td>
+            <td class="time-cell">${fmtTime(entry.ms)}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    contentEl.innerHTML = html;
+}
+
+function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
