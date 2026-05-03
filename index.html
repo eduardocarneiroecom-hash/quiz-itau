@@ -1086,8 +1086,7 @@ function initials(name) {
    LEADERBOARD (localStorage)
    ════════════════════════════════ */
 const LB_KEY   = 'itau_diversity_quiz_v2';
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwiilU0kxpRCSQiqTFOE9YDUHPKgmy0zuuYOzkE5I2ZGBmslWUJKuBbnnzoi_XRlIgJNg/exec
-';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwiilU0kxpRCSQiqTFOE9YDUHPKgmy0zuuYOzkE5I2ZGBmslWUJKuBbnnzoi_XRlIgJNg/exec';
 
 function getBoard() {
     try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch(e) { return []; }
